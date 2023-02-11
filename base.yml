@@ -4,7 +4,6 @@ esphome:
   
 # Enable logging
 logger:
-    esp8266_store_log_strings_in_flash: false
 
 web_server:
     port: 80
