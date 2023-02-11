@@ -37,8 +37,7 @@ uart:
   baud_rate: 4800
 
 sensor:
-  test: 
-    platform: cse7766
+  - platform: cse7766
     update_interval: 20s
     current:
         name: "Intensité Chauffe-Eau"
@@ -46,12 +45,6 @@ sensor:
         name: "Tension Chauffe-Eau"
     power:
         name: "Puissance Chauffe-Eau"
-        filters: 
-            - calibrate_linear:
-                # Map 0.0 (from sensor) to 0.0 (true value)
-                - 46 -> 42
-                - 57 -> 60
-                - 79 -> 75
     energy:
         name: "Compteur conso chauffe-eau"
 
