@@ -115,14 +115,14 @@ switch:
             condition:
                 # Same syntax for is_off
                 switch.is_on: activation_cumulus
-                then:
-                    - switch.template.publish:
-                      id: cumulus_marche_forcee
-                      state: ON
+            then:
+                - switch.template.publish:
+                  id: cumulus_marche_forcee
+                  state: ON
       turn_off_action:
         - switch.template.publish:
-          id: cumulus_marche_forcee
-          state: OFF
+            id: cumulus_marche_forcee
+            state: OFF
       on_turn_on:
         - script.execute: compute_script
       on_turn_off:
