@@ -10,6 +10,7 @@ button:
 
 script: 
   - id: compute_script
+    mode: restart
     then: 
       - if:
           condition:
@@ -27,6 +28,7 @@ script:
                     return (id(current_tarif).state == "HCJB" || id(current_tarif).state == "HCJW" || id(current_tarif).state == "HCJR");
           then: 
             - switch.turn_on: cumulus_real_pin
+            - switch.turn_off: cumulus_marche_forcee # On reset la marche forcée une fois que les heures creuses sont atteintes
           else:
             - switch.turn_off: cumulus_real_pin
 
@@ -35,22 +37,23 @@ uart:
   baud_rate: 4800
 
 sensor:
-- platform: cse7766
-  update_interval: 20s
-  current:
-    name: "Intensité Chauffe-Eau"
-  voltage:
-    name: "Tension Chauffe-Eau"
-  power:
-    name: "Puissance Chauffe-Eau"
-    filters:
-    - calibrate_linear:
-        # Map 0.0 (from sensor) to 0.0 (true value)
-        - 46 -> 42
-        - 57 -> 60
-        - 79 -> 75
-  energy:
-    name: "Compteur conso chauffe-eau"
+  test: 
+    platform: cse7766
+    update_interval: 20s
+    current:
+        name: "Intensité Chauffe-Eau"
+    voltage:
+        name: "Tension Chauffe-Eau"
+    power:
+        name: "Puissance Chauffe-Eau"
+        filters: 
+            - calibrate_linear:
+                # Map 0.0 (from sensor) to 0.0 (true value)
+                - 46 -> 42
+                - 57 -> 60
+                - 79 -> 75
+    energy:
+        name: "Compteur conso chauffe-eau"
 
 text_sensor:
     - platform: homeassistant
