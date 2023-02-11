@@ -5,8 +5,8 @@ status_led:
 
 button:
 - platform: restart
-    name: "Restart ESP"
-    internal: true
+  name: "Restart ESP"
+  internal: true
 
 script: 
   - id: compute_script
@@ -36,12 +36,12 @@ uart:
 
 sensor:
 - platform: cse7766
-    update_interval: 20s
-    current:
+  update_interval: 20s
+  current:
     name: "Intensité Chauffe-Eau"
-    voltage:
+  voltage:
     name: "Tension Chauffe-Eau"
-    power:
+  power:
     name: "Puissance Chauffe-Eau"
     filters:
     - calibrate_linear:
@@ -49,81 +49,81 @@ sensor:
         - 46 -> 42
         - 57 -> 60
         - 79 -> 75
-    energy:
+  energy:
     name: "Compteur conso chauffe-eau"
 
 text_sensor:
     - platform: homeassistant
-        name: "Tarif Actuel Home Assistant"
-        id: current_tarif
-        entity_id: ${current_tarif_entity_id}
-        on_value: 
+      name: "Tarif Actuel Home Assistant"
+      id: current_tarif
+      entity_id: ${current_tarif_entity_id}
+      on_value: 
         - script.execute: compute_script
 
 binary_sensor:
     - platform: gpio
-        pin:
-            number: GPIO0
-            mode:
-                input: true
-                pullup: true
-            inverted: true
-        name: "Bouton"
-        on_press:
-            - switch.toggle: cumulus_real_pin    
+      pin:
+        number: GPIO0
+        mode:
+            input: true
+            pullup: true
+        inverted: true
+      name: "Bouton"
+      on_press:
+        - switch.toggle: cumulus_real_pin    
 
 switch:
     - platform: gpio
-        name: "Chauffe-Eau"
-        pin: GPIO13
-        id: cumulus_real_pin
-        restore_mode: ALWAYS_OFF
-        internal: false
-        disabled_by_default: true
-        on_turn_on: 
-            - switch.turn_on: voyant    
-        on_turn_off: 
-            - switch.turn_off: voyant   
+      name: "Chauffe-Eau"
+      pin: GPIO13
+      id: cumulus_real_pin
+      restore_mode: ALWAYS_OFF
+      internal: false
+      disabled_by_default: true
+      on_turn_on: 
+        - switch.turn_on: voyant    
+      on_turn_off: 
+        - switch.turn_off: voyant   
     - platform: gpio
-        name: "Voyant Etat Relais"
-        pin: GPIO18
-        id: voyant
-        internal: true
-        inverted: true
-        restore_mode: ALWAYS_OFF
-      # Bouton Activation Cumulus (Activation de l'automation)
+      name: "Voyant Etat Relais"
+      pin: GPIO18
+      id: voyant
+      internal: true
+      inverted: true
+      restore_mode: ALWAYS_OFF
+    # Bouton Activation Cumulus (Activation de l'automation)
     - platform: template
-        name: "Activation Cumulus"
-        id: activation_cumulus
-        restore_mode: RESTORE_DEFAULT_OFF
-        optimistic: true
-        on_turn_on:
-            - script.execute: compute_script
-        on_turn_off:
-            - switch.turn_off: cumulus_marche_forcee
-            - script.execute: compute_script
+      name: "Activation Cumulus"
+      id: activation_cumulus
+      restore_mode: RESTORE_DEFAULT_OFF
+      optimistic: true
+      on_turn_on:
+        - script.execute: compute_script
+      on_turn_off:
+        - switch.turn_off: cumulus_marche_forcee
+        - script.execute: compute_script
     # Bouton de forçage cumulus (Hors jours rouge heures pleine)
     - platform: template
-        name: "Cumulus marche forcée"
-        id: cumulus_marche_forcee
-        restore_mode: ALWAYS_OFF
-        # Pas optimistic car on veut gérer ça manuellement avec turn_on_action et turn_off_action
-        optimistic: false
-        turn_on_action:
+      name: "Cumulus marche forcée"
+      id: cumulus_marche_forcee
+      restore_mode: ALWAYS_OFF
+      # Pas optimistic car on veut gérer ça manuellement avec turn_on_action et turn_off_action
+      optimistic: false
+      turn_on_action:
         if:
             # On publi le fait que le switch est on que si le cumulus est activé aussi
             condition:
             # Same syntax for is_off
             switch.is_on: activation_cumulus
             then:
-            - switch.template.publish:
-                id: cumulus_marche_forcee
-                state: ON
-        turn_off_action:
-            - switch.template.publish:
-                id: cumulus_marche_forcee
-                state: OFF
-        on_turn_on:
-            - script.execute: compute_script
-        on_turn_off:
-            - script.execute: compute_script
+                - switch.template.publish:
+                  id: cumulus_marche_forcee
+                  state: ON
+      turn_off_action:
+        - switch.template.publish:
+          id: cumulus_marche_forcee
+          state: OFF
+      on_turn_on:
+        - script.execute: compute_script
+      on_turn_off:
+        - script.execute: compute_script
