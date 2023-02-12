@@ -28,9 +28,19 @@ script:
                     return (id(current_tarif).state == "HCJB" || id(current_tarif).state == "HCJW" || id(current_tarif).state == "HCJR");
           then: 
             - switch.turn_on: cumulus_real_pin
-            - switch.turn_off: cumulus_marche_forcee # On reset la marche forcée une fois que les heures creuses sont atteintes
           else:
             - switch.turn_off: cumulus_real_pin
+  - id: remove_marche_forcee
+    mode: restart
+    then: 
+      - if:
+          condition:
+            and:
+              - switch.is_on: cumulus_marche_forcee
+              - lambda: |-
+                  return (id(current_tarif).state == "HCJB" || id(current_tarif).state == "HCJW" || id(current_tarif).state == "HCJR");
+          then: 
+            - switch.turn_off: cumulus_marche_forcee # On reset la marche forcée une fois que les heures creuses sont atteintes
 
 uart:
   rx_pin: GPIO16
@@ -45,6 +55,12 @@ sensor:
         name: "Tension Chauffe-Eau"
     power:
         name: "Puissance Chauffe-Eau"
+#        filters: 
+#            - calibrate_linear:
+#                # Map 0.0 (from sensor) to 0.0 (true value)
+#               - 46 -> 42
+#                - 57 -> 60
+#                - 79 -> 75
     energy:
         name: "Compteur conso chauffe-eau"
 
@@ -55,6 +71,7 @@ text_sensor:
       entity_id: ${current_tarif_entity_id}
       on_value: 
         - script.execute: compute_script
+        - script.execute: remove_marche_forcee
 
 binary_sensor:
     - platform: gpio
@@ -70,7 +87,7 @@ binary_sensor:
 
 switch:
     - platform: gpio
-      name: "Chauffe-Eau"
+      name: "Chauffe-Eau Real Pin"
       pin: GPIO13
       id: cumulus_real_pin
       restore_mode: ALWAYS_OFF
