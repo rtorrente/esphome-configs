@@ -1,0 +1,33 @@
+script: 
+  - id: compute_script
+    mode: restart
+    then: 
+      - if:
+          condition:
+            or: 
+              # Si le cumulus doit être activé, qu'on est en forcé et qu'on est pas en heure pleine jour rouge
+              - and:
+                - switch.is_on: activation_cumulus
+                - switch.is_on: cumulus_marche_forcee
+                - lambda: |-
+                    return id(current_tarif).state != "HPJR";
+              # Si le cumulus doit être activé et qu'on est en heure creuse
+              - and:
+                - switch.is_on: activation_cumulus
+                - lambda: |-
+                    return (id(current_tarif).state == "HCJB" || id(current_tarif).state == "HCJW" || id(current_tarif).state == "HCJR");
+          then: 
+            - switch.turn_on: cumulus_real_pin
+          else:
+            - switch.turn_off: cumulus_real_pin
+  - id: remove_marche_forcee
+    mode: restart
+    then: 
+      - if:
+          condition:
+            and:
+              - switch.is_on: cumulus_marche_forcee
+              - lambda: |-
+                  return (id(current_tarif).state == "HCJB" || id(current_tarif).state == "HCJW" || id(current_tarif).state == "HCJR");
+          then: 
+            - switch.turn_off: cumulus_marche_forcee # On reset la marche forcée une fois que les heures creuses sont atteintes

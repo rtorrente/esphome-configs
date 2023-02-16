@@ -1,0 +1,45 @@
+text_sensor:
+  - platform: homeassistant
+    name: "Prochaine Couleur"
+    id: demain_couleur
+    entity_id: ${next_color_entity_id}
+    on_value: 
+      - script.execute: compute_script
+
+script: 
+  - id: compute_script
+    mode: restart
+    then: 
+      - if:
+          condition:
+            or: 
+              # Si le cumulus doit être activé, qu'on est en forcé et qu'on est pas en heure pleine jour rouge
+              - and:
+                - switch.is_on: activation_cumulus
+                - switch.is_on: cumulus_marche_forcee
+                - lambda: |-
+                    return id(current_tarif).state != "HPJR";
+              # Si le cumulus doit être activé et qu'on est en heure creuse
+              - and:
+                - switch.is_on: activation_cumulus
+                # On est en heures creuses, n'importe laquelle
+                - lambda: |-
+                    return (id(current_tarif).state == "HCJB" || id(current_tarif).state == "HCJW" || id(current_tarif).state == "HCJR");
+                # Fonctionnel : Si aujourd'hui on est pas bleu, mais que demain on est bleu, on attends demain pour chauffer
+                # On ne chauffe que si demain on est pas bleu ou qu'aujourd'hui on est bleu
+                - or:
+                  - lambda: |-
+                      return id(demain_couleur).state != "Bleu";
+                  - lambda: |-
+                      return (id(current_tarif).state == "HCJB"
+                # Fonctionnel : Si aujourd'hui c'est rouge, mais que demain c'est mieux, on attends demain
+                - not:
+                  - and:
+                    - lambda: |-
+                        return (id(current_tarif).state == "HCJR"
+                    - lambda: |-
+                        return id(demain_couleur).state != "Rouge";
+          then: 
+            - switch.turn_on: cumulus_real_pin
+          else:
+            - switch.turn_off: cumulus_real_pin
