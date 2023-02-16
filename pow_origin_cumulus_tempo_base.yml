@@ -7,12 +7,79 @@ button:
 - platform: restart
   name: "Restart ESP"
   internal: true
-  
+
+script: 
+  - id: compute_script
+    mode: restart
+    then: 
+      - if:
+          condition:
+            or: 
+              # Si le cumulus doit être activé, qu'on est en forcé et qu'on est pas en heure pleine jour rouge
+              - and:
+                - switch.is_on: activation_cumulus
+                - switch.is_on: cumulus_marche_forcee
+                - lambda: |-
+                    return id(current_tarif).state != "HPJR";
+              # Si le cumulus doit être activé et qu'on est en heure creuse
+              - and:
+                - switch.is_on: activation_cumulus
+                # On est en heures creuses, n'importe laquelle
+                - lambda: |-
+                    return (id(current_tarif).state == "HCJB" || id(current_tarif).state == "HCJW" || id(current_tarif).state == "HCJR");
+                # Si on a pas d'opti
+                - binary_sensor.is_off: opti_ne_pas_chauffer
+          then: 
+            - switch.turn_on: cumulus_real_pin
+          else:
+            - switch.turn_off: cumulus_real_pin
+  - id: remove_marche_forcee
+    mode: restart
+    then: 
+      - if:
+          condition:
+            and:
+              - switch.is_on: cumulus_marche_forcee
+              - lambda: |-
+                  return (id(current_tarif).state == "HCJB" || id(current_tarif).state == "HCJW" || id(current_tarif).state == "HCJR");
+              # Si on a pas d'opti
+              - binary_sensor.is_off: opti_ne_pas_chauffer
+          then: 
+            - switch.turn_off: cumulus_marche_forcee # On reset la marche forcée une fois que les heures creuses sont atteintes si on a pas d'opti en cours, sinon on pourra pas forcer les optis
+
 uart:
   rx_pin: GPIO16
   baud_rate: 4800
 
 sensor:
+  - platform: template
+    name: "Poids Couleur Aujourd'hui"
+    id: poids_couleur_aujourdhui
+    internal: true
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(current_tarif).state == "HPJR" || id(current_tarif).state == "HCJR") {
+        return 3;
+      }
+      if (id(current_tarif).state == "HPJW" || id(current_tarif).state == "HCJW") {
+        return 2;
+      }
+      return 1;
+    update_interval: 600s
+  - platform: template
+    name: "Poids Couleur Demain"
+    id: poids_couleur_demain
+    internal: true
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(demain_couleur).state == "Rouge") {
+        return 3;
+      }
+      if (id(demain_couleur).state == "Blanc") {
+        return 2;
+      }
+      return 1;
+    update_interval: 600s
   - platform: cse7766
     update_interval: 20s
     current:
@@ -38,8 +105,26 @@ text_sensor:
       on_value: 
         - script.execute: compute_script
         - script.execute: remove_marche_forcee
+    - platform: homeassistant
+        name: "Prochaine Couleur"
+        id: demain_couleur
+        entity_id: ${next_color_entity_id}
+        on_value: 
+          - script.execute: compute_script
 
 binary_sensor:
+  - platform: template
+    name: "Optimisation ne pas chauffer"
+    id: opti_ne_pas_chauffer
+    internal: true
+    lambda: |-
+      // Optimisation désactivée
+      if(id(enable_optimisation) == false){
+        return false;
+      }
+      return id(poids_couleur_demain).state < id(poids_couleur_aujourdhui).state;
+    on_state:
+      script.execute: compute_script
     - platform: gpio
       pin:
         number: GPIO0
