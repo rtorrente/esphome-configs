@@ -4,9 +4,9 @@ status_led:
       inverted: true
 
 button:
-- platform: restart
-  name: "Restart ESP"
-  internal: true
+  - platform: restart
+    name: "Restart ESP"
+    internal: true
 
 script: 
   - id: compute_script
@@ -106,25 +106,25 @@ text_sensor:
         - script.execute: compute_script
         - script.execute: remove_marche_forcee
     - platform: homeassistant
-        name: "Prochaine Couleur"
-        id: demain_couleur
-        entity_id: ${next_color_entity_id}
-        on_value: 
-          - script.execute: compute_script
+      name: "Prochaine Couleur"
+      id: demain_couleur
+      entity_id: ${next_color_entity_id}
+      on_value: 
+        - script.execute: compute_script
 
 binary_sensor:
-  - platform: template
-    name: "Optimisation ne pas chauffer"
-    id: opti_ne_pas_chauffer
-    internal: true
-    lambda: |-
-      // Optimisation désactivée
-      if(id(enable_optimisation) == false){
-        return false;
-      }
-      return id(poids_couleur_demain).state < id(poids_couleur_aujourdhui).state;
-    on_state:
-      script.execute: compute_script
+    - platform: template
+      name: "Optimisation ne pas chauffer"
+      id: opti_ne_pas_chauffer
+      internal: true
+      lambda: |-
+        // Optimisation désactivée
+        if(id(enable_optimisation) == false){
+          return false;
+        }
+        return id(poids_couleur_demain).state < id(poids_couleur_aujourdhui).state;
+      on_state:
+        script.execute: compute_script
     - platform: gpio
       pin:
         number: GPIO0
