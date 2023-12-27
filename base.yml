@@ -1,5 +1,4 @@
 esphome:
-    name: ${device_name}
     name_add_mac_suffix: false
   
 # Enable logging
@@ -9,24 +8,28 @@ web_server:
     port: 80
     include_internal: true
     auth: 
-        username: ${web_server_username}
-        password: ${web_server_password}
-
-# Enable Home Assistant API
-api:
-    encryption:
-        key: ${api_encryption_key}
+        username: !secret basic_auth_user
+        password: !secret basic_auth_password
 
 ota:
     safe_mode: true
-    password: ${ota_password}
+    password: !secret ota_password
 
 wifi:
-    ssid: ${wifi_ssid}
-    password: ${wifi_password}
-    # Enable fallback hotspot (captive portal) in case wifi connection fails
-    ap:
-        ssid: "${device_name} Fallback Hotspot"
-        password: ${access_point_password}
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    # No SSID Specified to use the device name
+    password: !secret fallback_ap_password
 
 captive_portal:
+
+button:
+  - platform: restart
+    name: "Restart (Normal Mode)"
+    internal: true
+  - platform: safe_mode
+    name: "Restart (Safe Mode)"
+    internal: true
