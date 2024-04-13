@@ -81,13 +81,18 @@ sensor:
       return 1;
     update_interval: 600s
   - platform: cse7766
-    update_interval: 20s
     current:
         name: "Intensité Chauffe-Eau"
+        filters:
+            - throttle_average: 20s
     voltage:
         name: "Tension Chauffe-Eau"
+        filters:
+            - throttle_average: 20s
     power:
         name: "Puissance Chauffe-Eau"
+        filters:
+            - throttle_average: 20s
 #        filters: 
 #            - calibrate_linear:
 #                # Map 0.0 (from sensor) to 0.0 (true value)
@@ -96,6 +101,12 @@ sensor:
 #                - 79 -> 75
     energy:
         name: "Compteur conso chauffe-eau"
+        filters:
+            - throttle_average: 20s
+    apparent_power:
+      name: "Puissance Apparente Chauffe-Eau"
+      filters:
+        - throttle_average: 20s
 
 text_sensor:
     - platform: homeassistant
