@@ -3,8 +3,10 @@ esphome:
   
 # Enable logging
 logger:
+    id: main_logger
 
 web_server:
+    id: main_webserver
     port: 80
     include_internal: true
     auth: 
@@ -17,6 +19,7 @@ ota:
     id: main_ota
 
 wifi:
+  id: main_wifi
   networks:
     - ssid: !secret wifi_ssid
       password: !secret wifi_password
@@ -32,9 +35,11 @@ button:
   - platform: restart
     name: "Restart (Normal Mode)"
     internal: true
+    id: button_restart_normal
   - platform: safe_mode
     name: "Restart (Safe Mode)"
     internal: true
+    id: button_restart_safemode
 
 sensor:
   - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
@@ -43,6 +48,7 @@ sensor:
     update_interval: 600s
     entity_category: "diagnostic"
   - platform: uptime
+    id: uptime_sensor
     name: Uptime
     update_interval: 600s
     entity_category: "diagnostic"
