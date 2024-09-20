@@ -14,6 +14,7 @@ web_server:
         password: !secret basic_auth_password
 
 ota:
+  - platform: esphome
     safe_mode: true
     password: !secret ota_password
     id: main_ota
