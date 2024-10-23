@@ -50,6 +50,7 @@ script:
 uart:
   rx_pin: GPIO16
   baud_rate: 4800
+  parity: EVEN
 
 sensor:
   - platform: template
