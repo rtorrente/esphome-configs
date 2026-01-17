@@ -64,13 +64,23 @@ script:
                 color: 0xef4444
   - id: power_off_screen
     then: 
-      - logger.log: "Power off"
+      - script.execute: fade_out_backlight
+      - script.wait: fade_out_backlight
+      - lvgl.pause:
+          show_snow: true
 
 
 ### LVGL
 
 lvgl:
   - id: main_lvgl
+    on_idle:
+      timeout: 120s
+      then: 
+        - script.execute: power_off_screen
+    on_resume: 
+      then: 
+        - script.execute: fade_in_backlight
 
     top_layer:
         widgets:
@@ -168,3 +178,14 @@ font:
       "\U000F06B5", # mdi-lightbulb
       "\U000F0425" # mdi:power
     ]
+
+# Touchscreen resuming
+
+touchscreen:
+  - id: main_touchscreen
+    on_release:
+      then:
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - lvgl.resume:
