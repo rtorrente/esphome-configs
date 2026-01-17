@@ -1,0 +1,170 @@
+api:
+  id: main_api
+  on_client_connected:
+    then:
+      - script.execute: update_connection_status
+  on_client_disconnected: 
+    then:
+      - script.execute: update_connection_status
+
+### Sensors
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: "Europe/Paris"
+    on_time:
+      - minutes: '*'
+        seconds: 0
+        then:
+           - lvgl.label.update:
+              id: time_label
+              text:
+                time_format: "%R"
+                time: homeassistant_time
+           - lambda: |-
+              char date_buf[30];
+              time_t now = id(homeassistant_time).now().timestamp;
+              struct tm* timeinfo = localtime(&now);
+              
+              // Tableaux de traduction
+              const char* jours[] = {"Dimanche", "Lundi", "Mardi", "Mercredi", 
+                                     "Jeudi", "Vendredi", "Samedi"};
+              const char* mois[] = {"janvier", "février", "mars", "avril", "mai", "juin",
+                                    "juillet", "août", "septembre", "octobre", "novembre", "décembre"};
+              
+              // Format: Jour DD Mois Année
+              snprintf(date_buf, sizeof(date_buf), "%s %02d %s %04d", 
+                jours[timeinfo->tm_wday],
+                timeinfo->tm_mday,
+                mois[timeinfo->tm_mon],
+                timeinfo->tm_year + 1900
+              );
+
+              lv_label_set_text(id(date_label), date_buf);
+
+
+# Scripts
+
+script:
+  - id: update_connection_status
+    then:
+      - delay: 10s # api.connected without some wait
+      - if: 
+          condition: 
+              api.connected:
+                  state_subscription_only: true
+          then: 
+            - lvgl.led.update:
+                id: connection_dot
+                color: 0x22c55e
+          else:
+            - lvgl.led.update:
+                id: connection_dot
+                color: 0xef4444
+  - id: power_off_screen
+    then: 
+      - logger.log: "Power off"
+
+
+### LVGL
+
+lvgl:
+  - id: main_lvgl
+
+    top_layer:
+        widgets:
+          - container:
+              id: header
+              width: 480
+              height: 80
+              align: TOP_MID
+              bg_color: 0x1e3a8a
+              bg_grad_color: 0x581c87
+              bg_grad_dir: HOR
+              bg_opa: COVER
+              border_width: 0
+              border_color: "0x334155"  # Slate-700
+              pad_all: 12
+              scrollbar_mode: "OFF"
+              widgets:
+                - button:
+                    id: power_btn
+                    width: 20
+                    height: 20
+                    y: -5
+                    bg_opa: TRANSP
+                    border_side: NONE
+                    outline_width: 0
+                    shadow_width: 0
+                    pad_all: 0
+                    on_press: 
+                      then: 
+                        - script.execute: power_off_screen
+                    
+                    widgets:
+                      - label:
+                          text: "\U000F0425"  # Power icon
+                          text_color: "0x94a3b8"  # Slate-400
+                          text_font: material_icons_20
+
+                # Heure
+                - label:
+                    id: time_label
+                    text: "--:--"
+                    align: CENTER
+                    y: -12
+                    text_font: montserrat_40
+                    text_color: 0xFFFFFF
+                    text_align: CENTER
+                
+                # Date
+                - label:
+                    id: date_label
+                    text: " "
+                    align: CENTER
+                    y: 20
+                    text_font: montserrat_12
+                    text_color: 0xCBD5E1
+                    text_align: CENTER
+
+                # Connection indicator dot (right)
+                - led:
+                    id: connection_dot
+                    width: 8
+                    height: 8
+                    x: 450
+                    brightness: 100%
+                    color: 0xef4444
+
+    page_wrap: true
+    pages:
+      - id: main_page
+        # skip: true
+        layout:
+          type: FLEX
+          flex_flow: COLUMN
+          flex_align_main: START
+          flex_align_cross: CENTER
+        width: 100%
+        bg_color: 0xFFFFFF
+        bg_opa: cover
+        pad_top: 90
+        pad_bottom: 5
+        pad_left: 5
+        pad_right: 5
+        widgets:
+          - label: 
+              text: "TODO"
+          
+
+
+
+font:
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
+    id: material_icons_20
+    size: 20
+    glyphs: [
+      "\U000F06B5", # mdi-lightbulb
+      "\U000F0425" # mdi:power
+    ]
