@@ -56,16 +56,16 @@ light:
             id: [light_btn, light_icon]
             state: 
               checked: true
-        - lvgl.widget.show: [light_state_on, light_status_text_on]
-        - lvgl.widget.hide: [light_state_off, light_status_text_off]
+        - lvgl.widget.show: [light_state_on, light_touch_for_text_on]
+        - lvgl.widget.hide: [light_state_off, light_touch_for_text_off]
     on_turn_off: 
       then: 
         - lvgl.widget.update: 
             id: [light_btn, light_icon]
             state: 
               checked: false
-        - lvgl.widget.show: [light_state_off, light_status_text_off]
-        - lvgl.widget.hide: [light_state_on, light_status_text_on]
+        - lvgl.widget.show: [light_state_off, light_touch_for_text_off]
+        - lvgl.widget.hide: [light_state_on, light_touch_for_text_on]
 
 sensor:
   - platform: homeassistant
@@ -186,17 +186,52 @@ lvgl:
       then: 
         - script.execute: fade_in_backlight
 
+
     style_definitions:
-      - id: sensor_container
-        height: 80
-        bg_opa: cover
+      - id: shared_card
         border_width: 1
         radius: 8
         shadow_width: 2
         shadow_ofs_y: 2
+        shadow_ofs_x: 2
         shadow_color: 0x000000
         shadow_opa: 40%
-        pad_all: 8
+        pad_all: 12
+        bg_opa: cover
+      - id: sensor_container
+        height: 80
+      - id: button_card
+        width: 100%
+        height: ${card_height}
+        bg_color: 0x1f2937  # Gray-800 (off state)
+        border_color: 0x1f2937
+      - id: plus_minus_btn
+        bg_color: 0x374151  # Gray-700
+        border_width: 0
+        radius: 6
+        pad_all: 4
+      - id: light_state_x
+        text_font: montserrat_16
+        text_align: LEFT
+      - id: light_touch_for_x
+        border_width: 1
+        radius: 6
+        text_font: montserrat_16
+        text_align: CENTER
+        pad_right: 10
+        pad_left: 10
+        pad_top: 4
+        pad_bottom: 4
+        bg_opa: cover
+      - id: temp_hum_sensor_icon
+        text_font: material_icons_48
+      - id: temp_hum_sensor_value
+        text_font: montserrat_40
+        text_align: CENTER
+      - id: heat_state_x
+        text_font: montserrat_16
+        text_align: LEFT
+
 
     top_layer:
         widgets:
@@ -210,6 +245,7 @@ lvgl:
               border_width: 0
               border_color: 0x2d2d2d
               pad_all: 12
+              scrollable: false
               widgets:
                 - button:
                     id: power_btn
@@ -236,7 +272,7 @@ lvgl:
                     id: time_label
                     text: "--:--"
                     align: CENTER
-                    y: -12
+                    y: 0
                     text_font: montserrat_48
                     text_color: 0xf3f4f6
                     text_align: CENTER
@@ -246,7 +282,7 @@ lvgl:
                     id: date_label
                     text: " "
                     align: CENTER
-                    y: 20
+                    y: 35
                     text_font: montserrat_16
                     text_color: 0x6b7280
                     text_align: CENTER
@@ -283,18 +319,7 @@ lvgl:
               id: light_btn
               state:
                 checked: false
-              width: 100%
-              height: ${card_height}
-              bg_color: 0x1f2937  # Gray-800 (off state)
-              border_width: 1
-              border_color: 0x374151  # Gray-700
-              radius: 8
-              shadow_width: 2
-              shadow_ofs_x: 0
-              shadow_ofs_y: 2
-              shadow_color: 0x000000
-              shadow_opa: 40%
-              pad_all: 12
+              styles: [shared_card, button_card]
               layout: 
                 type: FLEX
                 flex_flow: ROW
@@ -311,6 +336,7 @@ lvgl:
                 # Left side: Icon + Label
                 - container:
                     width: 160
+                    scrollable: false
                     layout: 
                       type: FLEX
                       flex_flow: ROW
@@ -343,48 +369,31 @@ lvgl:
                                 text_align: LEFT
                             - label:
                                 id: light_state_off
+                                styles: light_state_x
                                 text: "Eteinte" 
                                 text_color: "0x9ca3af"  # Gray-400
-                                text_font: montserrat_16
-                                text_align: LEFT
                             - label:
                                 id: light_state_on
+                                styles: light_state_x
                                 text: "Allumee"
                                 hidden: true
                                 text_color: 0xFDE047
-                                text_font: montserrat_16
-                                text_align: LEFT
                 # Right side: Status indicator text
                 - label:
-                    id: light_status_text_off
-                    bg_color: "0x2d3748"  # Gray-700
-                    border_width: 1
-                    border_color: "0x4b5563"  # Gray-600
-                    radius: 6
+                    id: light_touch_for_text_off
+                    styles: light_touch_for_x
+                    bg_color: 0x1f2937  # Gray-800
+                    border_color: 0x2d3748  # Gray-700
                     text: "Toucher pour allumer"  # Sans accents
-                    text_color: "0x9ca3af"  # Gray-400
-                    text_font: montserrat_16
-                    text_align: CENTER
-                    pad_right: 10
-                    pad_left: 10
-                    pad_top: 4
-                    pad_bottom: 4
+                    text_color: 0x9ca3af  # Gray-400
                 - label:
-                    id: light_status_text_on
+                    id: light_touch_for_text_on
+                    styles: light_touch_for_x
                     hidden: true
                     bg_color: 0xFFFFFF  # White
-                    bg_opa: cover
-                    border_width: 1
                     border_color: 0xFFFFFF  # White
-                    radius: 6
                     text: "Toucher pour eteindre"  # Sans accents
                     text_color: 0xB45309
-                    text_font: montserrat_12
-                    text_align: CENTER
-                    pad_right: 10
-                    pad_left: 10
-                    pad_top: 4
-                    pad_bottom: 4
           # Grid sensor
           - container:
               id: sensors_grid
@@ -400,7 +409,7 @@ lvgl:
                 # Temperature card
                 - container: 
                     id: temp_card
-                    styles: sensor_container
+                    styles: [shared_card, sensor_container]
                     bg_color: 0x7c2d12 # Red-900
                     border_color: 0x92400e  # Orange-900
                     flex_grow: 1
@@ -412,19 +421,18 @@ lvgl:
                       flex_align_track: CENTER
                     widgets: 
                       - label:
+                          styles: temp_hum_sensor_icon
                           text: "\U000F050F"
                           text_color: "0xfed7aa"  # Orange-200
-                          text_font: material_icons_48
                       - label:
                           id: temp_value
-                          text: "--°"
+                          styles: temp_hum_sensor_value
+                          text: "--.-°"
                           text_color: "0xfef3c7"  # Amber-100
-                          text_font: montserrat_40
-                          text_align: CENTER
                 # Humidity card
                 - container: 
                     id: humidity_card
-                    styles: sensor_container
+                    styles: [shared_card, sensor_container]
                     bg_color: 0x0c4a6e  # Blue-900
                     border_color: 0x164e63  # Cyan-900
                     flex_grow: 1
@@ -436,30 +444,19 @@ lvgl:
                       flex_align_track: CENTER
                     widgets: 
                       - label:
+                          styles: temp_hum_sensor_icon
                           text: "\U000F058E"
                           text_color: 0xa5f3fc  # Cyan-300
-                          text_font: material_icons_48
                       - label:
                           id: humidity_value
+                          styles: temp_hum_sensor_value
                           text: "--%"
                           text_color: 0xa5f3fc  # Cyan-300
-                          text_font: montserrat_40
-                          text_align: CENTER
           # Climate
           - container:
               id: heating_btn
-              width: 100%
+              styles: [shared_card, button_card]
               height: ${card_height}
-              bg_color: 0x1f2937  # Gray-800
-              bg_opa: cover
-              border_width: 1
-              border_color: 0x374151  # Gray-700
-              radius: 8
-              shadow_width: 2
-              shadow_ofs_y: 2
-              shadow_color: 0x000000
-              shadow_opa: 40%
-              pad_all: 8
               layout: 
                 type: FLEX
                 flex_flow: ROW
@@ -531,26 +528,23 @@ lvgl:
                                 clickable: false # Propagate to parent
                             - label:
                                 id: heat_state_off
+                                styles: heat_state_x
                                 text: "Eteint" 
                                 text_color: 0x6b7280  # Gray-500
-                                text_font: montserrat_16
-                                text_align: LEFT
                                 clickable: false # Propagate to parent
                             - label:
                                 id: heat_state_idle
+                                styles: heat_state_x
                                 text: "Maintien"
                                 hidden: true
                                 text_color: 0xfb923c # Orange-400
-                                text_font: montserrat_16
-                                text_align: LEFT
                                 clickable: false # Propagate to parent
                             - label:
                                 id: heat_state_heating
+                                styles: heat_state_x
                                 text: "Chauffe"
                                 hidden: true
                                 text_color: 0xf59e0b # Amber-500
-                                text_font: montserrat_16
-                                text_align: LEFT
                                 clickable: false # Propagate to parent
                 # Temperature controls
                 - container:
@@ -565,10 +559,7 @@ lvgl:
                     widgets:
                       - button:
                           id: temp_minus_btn
-                          bg_color: 0x374151  # Gray-700
-                          border_width: 0
-                          radius: 6
-                          pad_all: 4
+                          styles: plus_minus_btn
                           layout: 
                             type: FLEX
                             flex_align_main: CENTER
@@ -590,17 +581,14 @@ lvgl:
                                   
                       - label:
                           id: target_temp_display
-                          text: "20.5°"
+                          text: "--.-°"
                           text_color: 0xf3f4f6  # Gray-100
                           text_font: montserrat_28
                           text_align: CENTER
                           width: 75 # Avoid blink in temp width changes
                       - button:
                           id: temp_plus_btn
-                          bg_color: 0x374151  # Gray-700
-                          border_width: 0
-                          radius: 6
-                          pad_all: 4
+                          styles: plus_minus_btn
                           layout: 
                             type: FLEX
                             flex_align_main: CENTER
