@@ -1,3 +1,7 @@
+substitutions:
+  card_height: 120
+  sensors_card_height: 100
+
 api:
   id: main_api
   on_client_connected:
@@ -199,7 +203,7 @@ lvgl:
           - container:
               id: header
               width: 480
-              height: 80
+              height: 100
               align: TOP_MID
               bg_color: 0x1f1f1f
               bg_opa: COVER
@@ -209,8 +213,8 @@ lvgl:
               widgets:
                 - button:
                     id: power_btn
-                    width: 20
-                    height: 20
+                    width: 32
+                    height: 32
                     y: -5
                     bg_opa: TRANSP
                     border_side: NONE
@@ -225,7 +229,7 @@ lvgl:
                       - label:
                           text: "\U000F0425"  # Power icon
                           text_color: 0x6b7280
-                          text_font: material_icons_24
+                          text_font: material_icons_32
 
                 # Heure
                 - label:
@@ -243,7 +247,7 @@ lvgl:
                     text: " "
                     align: CENTER
                     y: 20
-                    text_font: montserrat_14
+                    text_font: montserrat_16
                     text_color: 0x6b7280
                     text_align: CENTER
 
@@ -263,8 +267,8 @@ lvgl:
         width: 100%
         bg_color: 0x0f0f0f
         bg_opa: cover
-        pad_top: 90
-        pad_bottom: 8
+        pad_top: 110
+        pad_bottom: 10
         pad_left: 8
         pad_right: 8
         layout:
@@ -272,8 +276,7 @@ lvgl:
           flex_flow: COLUMN
           flex_align_main: START
           flex_align_cross: CENTER
-          pad_row: 8
-          pad_column: 8
+          pad_row: 10
         widgets:
           # Light
           - button:
@@ -319,7 +322,7 @@ lvgl:
                           id: light_icon
                           text: "\U000F0335"  # Lightbulb icon
                           text_color: "0xa1a5b0"  # Gray-600
-                          text_font: material_icons_32
+                          text_font: material_icons_48
                           state:
                             checked: false
                           checked:
@@ -336,20 +339,20 @@ lvgl:
                                 id: light_label
                                 text: "Lumiere"
                                 text_color: "0xf3f4f6"  # Gray-100
-                                text_font: montserrat_16
+                                text_font: montserrat_20
                                 text_align: LEFT
                             - label:
                                 id: light_state_off
                                 text: "Eteinte" 
                                 text_color: "0x9ca3af"  # Gray-400
-                                text_font: montserrat_12
+                                text_font: montserrat_16
                                 text_align: LEFT
                             - label:
                                 id: light_state_on
                                 text: "Allumee"
                                 hidden: true
                                 text_color: 0xFDE047
-                                text_font: montserrat_12
+                                text_font: montserrat_16
                                 text_align: LEFT
                 # Right side: Status indicator text
                 - label:
@@ -360,7 +363,7 @@ lvgl:
                     radius: 6
                     text: "Toucher pour allumer"  # Sans accents
                     text_color: "0x9ca3af"  # Gray-400
-                    text_font: montserrat_12
+                    text_font: montserrat_16
                     text_align: CENTER
                     pad_right: 10
                     pad_left: 10
@@ -386,7 +389,7 @@ lvgl:
           - container:
               id: sensors_grid
               width: 100%
-              height: ${card_height}
+              height: ${sensors_card_height}
               layout: 
                 type: FLEX
                 flex_flow: ROW
@@ -411,7 +414,7 @@ lvgl:
                       - label:
                           text: "\U000F050F"
                           text_color: "0xfed7aa"  # Orange-200
-                          text_font: material_icons_32
+                          text_font: material_icons_48
                       - label:
                           id: temp_value
                           text: "--°"
@@ -435,7 +438,7 @@ lvgl:
                       - label:
                           text: "\U000F058E"
                           text_color: 0xa5f3fc  # Cyan-300
-                          text_font: material_icons_32
+                          text_font: material_icons_48
                       - label:
                           id: humidity_value
                           text: "--%"
@@ -471,7 +474,7 @@ lvgl:
                       flex_flow: ROW
                       flex_align_main: START
                       flex_align_cross: CENTER
-                      pad_column: 8
+                      pad_column: 12
                     on_press: # On all block icon + label to have better cliking experience
                       then: 
                         - homeassistant.action:
@@ -481,8 +484,8 @@ lvgl:
                     widgets: 
                       - container:
                           id: heat_icon_btn
-                          height: 44
-                          width: 44
+                          height: 60 # Icon size + 2 x padding
+                          width: 60
                           state:
                             checked: false
                           bg_color: 0x374151 # Off state
@@ -504,7 +507,7 @@ lvgl:
                                 id: heat_icon
                                 text: "\U000F0238"  # Heater icon
                                 text_color: 0x6b7280 # Idle
-                                text_font: material_icons_32
+                                text_font: material_icons_48
                                 clickable: false # Propagate to parent
                                 state:
                                   checked: false
@@ -523,14 +526,14 @@ lvgl:
                                 id: heat_label
                                 text: "Chauffage"
                                 text_color: 0xf3f4f6  # Gray-100
-                                text_font: montserrat_16
+                                text_font: montserrat_20
                                 text_align: LEFT
                                 clickable: false # Propagate to parent
                             - label:
                                 id: heat_state_off
                                 text: "Eteint" 
                                 text_color: 0x6b7280  # Gray-500
-                                text_font: montserrat_12
+                                text_font: montserrat_16
                                 text_align: LEFT
                                 clickable: false # Propagate to parent
                             - label:
@@ -538,7 +541,7 @@ lvgl:
                                 text: "Maintien"
                                 hidden: true
                                 text_color: 0xfb923c # Orange-400
-                                text_font: montserrat_12
+                                text_font: montserrat_16
                                 text_align: LEFT
                                 clickable: false # Propagate to parent
                             - label:
@@ -546,7 +549,7 @@ lvgl:
                                 text: "Chauffe"
                                 hidden: true
                                 text_color: 0xf59e0b # Amber-500
-                                text_font: montserrat_12
+                                text_font: montserrat_16
                                 text_align: LEFT
                                 clickable: false # Propagate to parent
                 # Temperature controls
@@ -575,7 +578,7 @@ lvgl:
                             - label:
                                 text: "\U000F1639"
                                 text_color: 0x9ca3af  # Gray-400
-                                text_font: material_icons_32
+                                text_font: material_icons_48
                           on_click: 
                             then: 
                             - homeassistant.action:
@@ -589,9 +592,9 @@ lvgl:
                           id: target_temp_display
                           text: "20.5°"
                           text_color: 0xf3f4f6  # Gray-100
-                          text_font: montserrat_24
+                          text_font: montserrat_28
                           text_align: CENTER
-                          width: 65 # Avoid blink in temp width changes
+                          width: 75 # Avoid blink in temp width changes
                       - button:
                           id: temp_plus_btn
                           bg_color: 0x374151  # Gray-700
@@ -607,7 +610,7 @@ lvgl:
                             - label:
                                 text: "\U000F11EC"
                                 text_color: 0x9ca3af  # Gray-400
-                                text_font: material_icons_32
+                                text_font: material_icons_48
                           on_click: 
                             then: 
                             - homeassistant.action:
@@ -619,16 +622,16 @@ lvgl:
 
 font:
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
-    id: material_icons_24
-    bpp: 4
-    size: 24
-    glyphs: [
-      "\U000F0425" # mdi:power
-    ]
-  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
     id: material_icons_32
     bpp: 4
     size: 32
+    glyphs: [
+      "\U000F0425", # mdi:power
+    ]
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
+    id: material_icons_48
+    bpp: 4
+    size: 48
     glyphs: [
       "\U000F0335", # Lightbulb icon
       "\U000F0238", # Heater icon
