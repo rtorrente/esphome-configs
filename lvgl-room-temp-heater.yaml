@@ -319,7 +319,7 @@ lvgl:
                           id: light_icon
                           text: "\U000F0335"  # Lightbulb icon
                           text_color: "0xa1a5b0"  # Gray-600
-                          text_font: material_icons_28
+                          text_font: material_icons_32
                           state:
                             checked: false
                           checked:
@@ -348,7 +348,7 @@ lvgl:
                                 id: light_state_on
                                 text: "Allumee"
                                 hidden: true
-                                text_color: "0x9ca3af"  # Gray-400
+                                text_color: 0xFDE047
                                 text_font: montserrat_12
                                 text_align: LEFT
                 # Right side: Status indicator text
@@ -369,12 +369,13 @@ lvgl:
                 - label:
                     id: light_status_text_on
                     hidden: true
-                    bg_color: "0x2d3748"  # Gray-700
+                    bg_color: 0xFFFFFF  # White
+                    bg_opa: cover
                     border_width: 1
-                    border_color: "0x4b5563"  # Gray-600
+                    border_color: 0xFFFFFF  # White
                     radius: 6
                     text: "Toucher pour eteindre"  # Sans accents
-                    text_color: "0x9ca3af"  # Gray-400
+                    text_color: 0xB45309
                     text_font: montserrat_12
                     text_align: CENTER
                     pad_right: 10
@@ -410,7 +411,7 @@ lvgl:
                       - label:
                           text: "\U000F050F"
                           text_color: "0xfed7aa"  # Orange-200
-                          text_font: material_icons_28
+                          text_font: material_icons_32
                       - label:
                           id: temp_value
                           text: "--°"
@@ -434,7 +435,7 @@ lvgl:
                       - label:
                           text: "\U000F058E"
                           text_color: 0xa5f3fc  # Cyan-300
-                          text_font: material_icons_28
+                          text_font: material_icons_32
                       - label:
                           id: humidity_value
                           text: "--%"
@@ -480,10 +481,10 @@ lvgl:
                     widgets: 
                       - container:
                           id: heat_icon_btn
+                          height: 44
+                          width: 44
                           state:
                             checked: false
-                          width: 40
-                          height: 40
                           bg_color: 0x374151 # Off state
                           bg_opa: cover
                           shadow_width: 2
@@ -503,7 +504,7 @@ lvgl:
                                 id: heat_icon
                                 text: "\U000F0238"  # Heater icon
                                 text_color: 0x6b7280 # Idle
-                                text_font: material_icons_28
+                                text_font: material_icons_32
                                 clickable: false # Propagate to parent
                                 state:
                                   checked: false
@@ -561,12 +562,10 @@ lvgl:
                     widgets:
                       - button:
                           id: temp_minus_btn
-                          width: 32
-                          height: 32
                           bg_color: 0x374151  # Gray-700
                           border_width: 0
                           radius: 6
-                          pad_all: 0
+                          pad_all: 4
                           layout: 
                             type: FLEX
                             flex_align_main: CENTER
@@ -576,7 +575,7 @@ lvgl:
                             - label:
                                 text: "\U000F1639"
                                 text_color: 0x9ca3af  # Gray-400
-                                text_font: material_icons_28
+                                text_font: material_icons_32
                           on_click: 
                             then: 
                             - homeassistant.action:
@@ -595,12 +594,10 @@ lvgl:
                           width: 65 # Avoid blink in temp width changes
                       - button:
                           id: temp_plus_btn
-                          width: 32
-                          height: 32
                           bg_color: 0x374151  # Gray-700
                           border_width: 0
                           radius: 6
-                          pad_all: 0
+                          pad_all: 4
                           layout: 
                             type: FLEX
                             flex_align_main: CENTER
@@ -610,7 +607,7 @@ lvgl:
                             - label:
                                 text: "\U000F11EC"
                                 text_color: 0x9ca3af  # Gray-400
-                                text_font: material_icons_28
+                                text_font: material_icons_32
                           on_click: 
                             then: 
                             - homeassistant.action:
@@ -629,9 +626,9 @@ font:
       "\U000F0425" # mdi:power
     ]
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
-    id: material_icons_28
+    id: material_icons_32
     bpp: 4
-    size: 28
+    size: 32
     glyphs: [
       "\U000F0335", # Lightbulb icon
       "\U000F0238", # Heater icon
