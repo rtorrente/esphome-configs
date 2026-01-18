@@ -633,7 +633,7 @@ font:
 
 touchscreen:
   - id: main_touchscreen
-    on_release:
+    on_touch:
       then:
         - if:
             condition: lvgl.is_paused
