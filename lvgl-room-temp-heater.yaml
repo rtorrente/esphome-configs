@@ -82,7 +82,67 @@ sensor:
           id: humidity_value
           text:
             format: "%.0f%%"
+            args: [ 'x' ]
+  
+  - platform: homeassistant
+    id: climate_target_temp
+    entity_id: ${climate_entity_id}
+    attribute: temperature
+    on_value:
+      - lvgl.label.update:
+          id: target_temp_display
+          text:
+            format: "%.1f°"
             args: [ 'x' ]  
+
+
+text_sensor:
+  - platform: homeassistant
+    id: climate_action
+    entity_id: ${climate_entity_id}
+    attribute: hvac_action
+    on_value: 
+      then: 
+        if: 
+          condition:
+            text_sensor.state:
+              id: climate_action
+              state: 'off'
+          then: 
+            - lvgl.widget.show: [heat_state_off]
+            - lvgl.widget.hide: [heat_state_idle, heat_state_heating]
+          else: 
+            if: 
+              condition:
+                text_sensor.state:
+                  id: climate_action
+                  state: 'idle'
+              then: 
+                - lvgl.widget.show: [heat_state_idle]
+                - lvgl.widget.hide: [heat_state_off, heat_state_heating]
+              else: 
+                - lvgl.widget.show: [heat_state_heating]
+                - lvgl.widget.hide: [heat_state_off, heat_state_idle]
+  - platform: homeassistant
+    id: climate_mode
+    entity_id: ${climate_entity_id}
+    on_value: 
+      then: 
+        if: 
+          condition:
+            text_sensor.state:
+              id: climate_mode
+              state: 'off'
+          then: 
+            - lvgl.widget.update:   
+                id: [heat_icon_btn, heat_icon]
+                state: 
+                  checked: false
+          else: 
+            - lvgl.widget.update:   
+                id: [heat_icon_btn, heat_icon]
+                state: 
+                  checked: true
 
 # Scripts
 
@@ -217,6 +277,7 @@ lvgl:
           pad_row: 8
           pad_column: 8
         widgets:
+          # Light
           - button:
               id: light_btn
               state:
@@ -382,10 +443,178 @@ lvgl:
                           text_color: 0xa5f3fc  # Cyan-300
                           text_font: montserrat_40
                           text_align: CENTER
+          # Climate
+          - button:
+              id: heating_btn
+              width: 100%
+              height: 72
+              bg_color: 0x1f2937  # Gray-800
+              border_width: 1
+              border_color: 0x374151  # Gray-700
+              radius: 8
+              shadow_width: 2
+              shadow_ofs_y: 2
+              shadow_color: 0x000000
+              shadow_opa: 40%
+              pad_all: 8
+              layout: 
+                type: FLEX
+                flex_flow: ROW
+                flex_align_main: SPACE_BETWEEN
+                flex_align_cross: CENTER
+              widgets: 
+                # Flame icon button
+                - container:
+                    width: 160
+                    layout: 
+                      type: FLEX
+                      flex_flow: ROW
+                      flex_align_main: START
+                      flex_align_cross: CENTER
+                      pad_column: 8
+                    widgets: 
+                      - button:
+                          id: heat_icon_btn
+                          state:
+                            checked: false
+                          width: 40
+                          height: 40
+                          bg_color: 0x374151 # Off state
+                          shadow_width: 0
+                          border_width: 0
+                          radius: 8
+                          pad_all: 6
+                          layout: 
+                            type: FLEX
+                            flex_align_main: CENTER
+                            flex_align_cross: CENTER
+                          checked: 
+                            bg_color: 0xEA580C
+                          on_click:
+                            then: 
+                              - homeassistant.action:
+                                  action: climate.toggle
+                                  data:
+                                    entity_id: ${climate_entity_id}
+                          widgets: 
+                            - label:
+                                id: heat_icon
+                                text: "\U000F0238"  # Heater icon
+                                text_color: 0x6b7280 # Idle
+                                text_font: material_icons_24
+                                state:
+                                  checked: false
+                                checked: 
+                                  text_color: 0xfef3c7
+                      # Text group
+                      - container:
+                          width: 120
+                          layout: 
+                            type: FLEX
+                            flex_flow: COLUMN
+                            flex_align_main: CENTER
+                          widgets:
+                            - label:
+                                id: heat_label
+                                text: "Chauffage"
+                                text_color: "0xf3f4f6"  # Gray-100
+                                text_font: montserrat_16
+                                text_align: LEFT
+                            - label:
+                                id: heat_state_off
+                                text: "Eteint" 
+                                text_color: 0x6b7280  # Gray-500
+                                text_font: montserrat_12
+                                text_align: LEFT
+                            - label:
+                                id: heat_state_idle
+                                text: "Maintien"
+                                hidden: true
+                                text_color: 0xfb923c # Orange-400
+                                text_font: montserrat_12
+                                text_align: LEFT
+                            - label:
+                                id: heat_state_heating
+                                text: "Chauffe"
+                                hidden: true
+                                text_color: 0xf59e0b # Amber-500
+                                text_font: montserrat_12
+                                text_align: LEFT
+                # Temperature controls
+                - container:
+                    layout: 
+                      type: FLEX
+                      flex_flow: ROW
+                      flex_align_main: END
+                      flex_align_cross: CENTER
+                      flex_align_track: CENTER
+                      pad_column: 8
+                    widgets:
+                      - button:
+                          id: temp_minus_btn
+                          width: 32
+                          height: 32
+                          bg_color: 0x374151  # Gray-700
+                          border_width: 0
+                          radius: 6
+                          pad_all: 0
+                          layout: 
+                            type: FLEX
+                            flex_align_main: CENTER
+                            flex_align_cross: CENTER
+                            flex_align_track: CENTER
+                          widgets: 
+                            - label:
+                                text: "\U000F1639"
+                                text_color: 0x9ca3af  # Gray-400
+                                text_font: material_icons_28
+                          on_click: 
+                            then: 
+                            - homeassistant.service:
+                                service: climate.set_temperature
+                                data:
+                                  entity_id: ${climate_entity_id}
+                                  temperature: !lambda |-
+                                    return std::max(id(climate_target_temp).state - 0.5, ${min_target_temperature});
+                                  
+                      - label:
+                          id: target_temp_display
+                          text: "20.5°"
+                          text_color: 0xf3f4f6  # Gray-100
+                          text_font: montserrat_24
+                          text_align: CENTER
+                          width: 65 # Avoid blink in temp width changes
+                      - button:
+                          id: temp_plus_btn
+                          width: 32
+                          height: 32
+                          bg_color: 0x374151  # Gray-700
+                          border_width: 0
+                          radius: 6
+                          pad_all: 0
+                          layout: 
+                            type: FLEX
+                            flex_align_main: CENTER
+                            flex_align_cross: CENTER
+                            flex_align_track: CENTER
+                          widgets: 
+                            - label:
+                                text: "\U000F11EC"
+                                text_color: 0x9ca3af  # Gray-400
+                                text_font: material_icons_28
+                          on_click: 
+                            then: 
+                            - homeassistant.service:
+                                service: climate.set_temperature
+                                data:
+                                  entity_id: ${climate_entity_id}
+                                  temperature: !lambda |-
+                                    return std::min(id(climate_target_temp).state + 0.5, ${max_target_temperature});
 
 font:
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
     id: material_icons_20
+    bpp: 4
     size: 20
     glyphs: [
       "\U000F06B5", # mdi-lightbulb
@@ -394,16 +623,21 @@ font:
     ]
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
     id: material_icons_24
+    bpp: 4
     size: 24
     glyphs: [
-      "\U000F0335"
+      "\U000F0335",
+      "\U000F0238"
     ]
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
     id: material_icons_28
+    bpp: 4
     size: 28
     glyphs: [
       "\U000F050F", # mdi:thermometer
-      "\U000F058E" # mdi:water-percent
+      "\U000F058E", # mdi:water-percent
+      "\U000F1639", # mdi:minus-thick
+      "\U000F11EC" # mdi:plus-thick
     ]
 
 # Touchscreen resuming
