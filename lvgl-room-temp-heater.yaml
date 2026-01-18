@@ -44,6 +44,25 @@ time:
               lv_label_set_text(id(date_label), date_buf);
 
 
+light:
+  - id: !extend ${light}
+    on_turn_on: 
+      then: 
+        - lvgl.widget.update: 
+            id: [light_btn, light_icon]
+            state: 
+              checked: true
+        - lvgl.widget.show: [light_state_on, light_status_text_on]
+        - lvgl.widget.hide: [light_state_off, light_status_text_off]
+    on_turn_off: 
+      then: 
+        - lvgl.widget.update: 
+            id: [light_btn, light_icon]
+            state: 
+              checked: false
+        - lvgl.widget.show: [light_state_off, light_status_text_off]
+        - lvgl.widget.hide: [light_state_on, light_status_text_on]
+
 # Scripts
 
 script:
@@ -89,12 +108,12 @@ lvgl:
               width: 480
               height: 80
               align: TOP_MID
-              bg_color: 0x1e3a8a
-              bg_grad_color: 0x581c87
+              bg_color: 0x1a1a1a
+              bg_grad_color: 0x2d2d2d
               bg_grad_dir: HOR
               bg_opa: COVER
               border_width: 0
-              border_color: "0x334155"  # Slate-700
+              border_color: 0x2d2d2d
               pad_all: 12
               scrollbar_mode: "OFF"
               widgets:
@@ -115,7 +134,7 @@ lvgl:
                     widgets:
                       - label:
                           text: "\U000F0425"  # Power icon
-                          text_color: "0x94a3b8"  # Slate-400
+                          text_color: 0x6b7280
                           text_font: material_icons_20
 
                 # Heure
@@ -124,8 +143,8 @@ lvgl:
                     text: "--:--"
                     align: CENTER
                     y: -12
-                    text_font: montserrat_40
-                    text_color: 0xFFFFFF
+                    text_font: montserrat_48
+                    text_color: 0xf3f4f6
                     text_align: CENTER
                 
                 # Date
@@ -134,8 +153,8 @@ lvgl:
                     text: " "
                     align: CENTER
                     y: 20
-                    text_font: montserrat_12
-                    text_color: 0xCBD5E1
+                    text_font: montserrat_14
+                    text_color: 0x6b7280
                     text_align: CENTER
 
                 # Connection indicator dot (right)
@@ -151,22 +170,126 @@ lvgl:
     pages:
       - id: main_page
         # skip: true
+        width: 100%
+        bg_color: 0x0f0f0f
+        bg_opa: cover
+        pad_top: 90
+        pad_bottom: 8
+        pad_left: 8
+        pad_right: 8
         layout:
           type: FLEX
           flex_flow: COLUMN
           flex_align_main: START
           flex_align_cross: CENTER
-        width: 100%
-        bg_color: 0xFFFFFF
-        bg_opa: cover
-        pad_top: 90
-        pad_bottom: 5
-        pad_left: 5
-        pad_right: 5
+          pad_row: 8
+          pad_column: 8
         widgets:
-          - label: 
-              text: "TODO"
-          
+          - button:
+              id: light_btn
+              state:
+                checked: false
+              width: 100%
+              height: 72
+              bg_color: 0x1f2937  # Gray-800 (off state)
+              border_width: 1
+              border_color: 0x374151  # Gray-700
+              radius: 8
+              shadow_width: 2
+              shadow_ofs_x: 0
+              shadow_ofs_y: 2
+              shadow_color: 0x000000
+              shadow_opa: 40%
+              pad_all: 12
+              layout: 
+                type: FLEX
+                flex_flow: ROW
+                flex_align_main: SPACE_BETWEEN
+                flex_align_cross: CENTER
+              checked:
+                bg_color: 0xb45309
+                border_color: 0xd97706
+              on_click:
+                then: 
+                  - light.toggle:
+                      id: ${light}
+              widgets:
+                # Left side: Icon + Label
+                - container:
+                    width: 160
+                    layout: 
+                      type: FLEX
+                      flex_flow: ROW
+                      flex_align_main: START
+                      flex_align_cross: CENTER
+                      pad_column: 8
+                    widgets: 
+                      - label:
+                          id: light_icon
+                          text: "\U000F0335"  # Lightbulb icon
+                          text_color: "0xa1a5b0"  # Gray-600
+                          text_font: material_icons_24
+                          state:
+                            checked: false
+                          checked:
+                            text_color: 0xfcd34d
+                      # Text group
+                      - container:
+                          width: 120
+                          layout: 
+                            type: FLEX
+                            flex_flow: COLUMN
+                            flex_align_main: CENTER
+                          widgets:
+                            - label:
+                                id: light_label
+                                text: "Lumiere"
+                                text_color: "0xf3f4f6"  # Gray-100
+                                text_font: montserrat_16
+                                text_align: LEFT
+                            - label:
+                                id: light_state_off
+                                text: "Eteinte" 
+                                text_color: "0x9ca3af"  # Gray-400
+                                text_font: montserrat_12
+                                text_align: LEFT
+                            - label:
+                                id: light_state_on
+                                text: "Allumee"
+                                hidden: true
+                                text_color: "0x9ca3af"  # Gray-400
+                                text_font: montserrat_12
+                                text_align: LEFT
+                # Right side: Status indicator text
+                - label:
+                    id: light_status_text_off
+                    bg_color: "0x2d3748"  # Gray-700
+                    border_width: 1
+                    border_color: "0x4b5563"  # Gray-600
+                    radius: 6
+                    text: "Toucher pour allumer"  # Sans accents
+                    text_color: "0x9ca3af"  # Gray-400
+                    text_font: montserrat_12
+                    text_align: CENTER
+                    pad_right: 10
+                    pad_left: 10
+                    pad_top: 4
+                    pad_bottom: 4
+                - label:
+                    id: light_status_text_on
+                    hidden: true
+                    bg_color: "0x2d3748"  # Gray-700
+                    border_width: 1
+                    border_color: "0x4b5563"  # Gray-600
+                    radius: 6
+                    text: "Toucher pour eteindre"  # Sans accents
+                    text_color: "0x9ca3af"  # Gray-400
+                    text_font: montserrat_12
+                    text_align: CENTER
+                    pad_right: 10
+                    pad_left: 10
+                    pad_top: 4
+                    pad_bottom: 4
 
 
 
@@ -177,6 +300,12 @@ font:
     glyphs: [
       "\U000F06B5", # mdi-lightbulb
       "\U000F0425" # mdi:power
+    ]
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
+    id: material_icons_24
+    size: 24
+    glyphs: [
+      "\U000F0335"
     ]
 
 # Touchscreen resuming
