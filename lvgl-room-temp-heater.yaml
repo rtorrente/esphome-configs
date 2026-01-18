@@ -63,6 +63,27 @@ light:
         - lvgl.widget.show: [light_state_off, light_status_text_off]
         - lvgl.widget.hide: [light_state_on, light_status_text_on]
 
+sensor:
+  - platform: homeassistant
+    entity_id: ${room_temperature_entity_id}
+    id: temperature
+    on_value:
+      - lvgl.label.update:
+          id: temp_value
+          text:
+            format: "%.1f°"
+            args: [ 'x' ]  
+
+  - platform: homeassistant
+    id: room_humidity
+    entity_id: ${room_humidity_entity_id}
+    on_value:
+      - lvgl.label.update:
+          id: humidity_value
+          text:
+            format: "%.0f%%"
+            args: [ 'x' ]  
+
 # Scripts
 
 script:
@@ -101,6 +122,18 @@ lvgl:
       then: 
         - script.execute: fade_in_backlight
 
+    style_definitions:
+      - id: sensor_container
+        height: 80
+        bg_opa: cover
+        border_width: 1
+        radius: 8
+        shadow_width: 2
+        shadow_ofs_y: 2
+        shadow_color: 0x000000
+        shadow_opa: 40%
+        pad_all: 8
+
     top_layer:
         widgets:
           - container:
@@ -115,7 +148,6 @@ lvgl:
               border_width: 0
               border_color: 0x2d2d2d
               pad_all: 12
-              scrollbar_mode: "OFF"
               widgets:
                 - button:
                     id: power_btn
@@ -290,8 +322,66 @@ lvgl:
                     pad_left: 10
                     pad_top: 4
                     pad_bottom: 4
-
-
+          # Grid sensor
+          - container:
+              id: sensors_grid
+              width: 100%
+              height: 80
+              layout: 
+                type: FLEX
+                flex_flow: ROW
+                flex_align_main: SPACE_BETWEEN
+                flex_align_cross: CENTER
+                pad_column: 8
+              widgets: 
+                # Temperature card
+                - container: 
+                    id: temp_card
+                    styles: sensor_container
+                    bg_color: 0x7c2d12 # Red-900
+                    border_color: 0x92400e  # Orange-900
+                    flex_grow: 1
+                    layout: 
+                      type: FLEX
+                      flex_flow: ROW
+                      flex_align_main: SPACE_BETWEEN
+                      flex_align_cross: CENTER
+                      flex_align_track: CENTER
+                    widgets: 
+                      - label:
+                          text: "\U000F050F"
+                          text_color: "0xfed7aa"  # Orange-200
+                          text_font: material_icons_28
+                      - label:
+                          id: temp_value
+                          text: "--°"
+                          text_color: "0xfef3c7"  # Amber-100
+                          text_font: montserrat_40
+                          text_align: CENTER
+                # Humidity card
+                - container: 
+                    id: humidity_card
+                    styles: sensor_container
+                    bg_color: 0x0c4a6e  # Blue-900
+                    border_color: 0x164e63  # Cyan-900
+                    flex_grow: 1
+                    layout: 
+                      type: FLEX
+                      flex_flow: ROW
+                      flex_align_main: SPACE_BETWEEN
+                      flex_align_cross: CENTER
+                      flex_align_track: CENTER
+                    widgets: 
+                      - label:
+                          text: "\U000F058E"
+                          text_color: 0xa5f3fc  # Cyan-300
+                          text_font: material_icons_28
+                      - label:
+                          id: humidity_value
+                          text: "--%"
+                          text_color: 0xa5f3fc  # Cyan-300
+                          text_font: montserrat_40
+                          text_align: CENTER
 
 font:
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
@@ -300,12 +390,20 @@ font:
     glyphs: [
       "\U000F06B5", # mdi-lightbulb
       "\U000F0425" # mdi:power
+      
     ]
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
     id: material_icons_24
     size: 24
     glyphs: [
       "\U000F0335"
+    ]
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
+    id: material_icons_28
+    size: 28
+    glyphs: [
+      "\U000F050F", # mdi:thermometer
+      "\U000F058E" # mdi:water-percent
     ]
 
 # Touchscreen resuming
