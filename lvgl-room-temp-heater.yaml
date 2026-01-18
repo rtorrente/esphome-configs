@@ -201,9 +201,7 @@ lvgl:
               width: 480
               height: 80
               align: TOP_MID
-              bg_color: 0x1a1a1a
-              bg_grad_color: 0x2d2d2d
-              bg_grad_dir: HOR
+              bg_color: 0x1f1f1f
               bg_opa: COVER
               border_width: 0
               border_color: 0x2d2d2d
@@ -227,7 +225,7 @@ lvgl:
                       - label:
                           text: "\U000F0425"  # Power icon
                           text_color: 0x6b7280
-                          text_font: material_icons_20
+                          text_font: material_icons_24
 
                 # Heure
                 - label:
@@ -283,7 +281,7 @@ lvgl:
               state:
                 checked: false
               width: 100%
-              height: 72
+              height: ${card_height}
               bg_color: 0x1f2937  # Gray-800 (off state)
               border_width: 1
               border_color: 0x374151  # Gray-700
@@ -321,7 +319,7 @@ lvgl:
                           id: light_icon
                           text: "\U000F0335"  # Lightbulb icon
                           text_color: "0xa1a5b0"  # Gray-600
-                          text_font: material_icons_24
+                          text_font: material_icons_28
                           state:
                             checked: false
                           checked:
@@ -387,7 +385,7 @@ lvgl:
           - container:
               id: sensors_grid
               width: 100%
-              height: 80
+              height: ${card_height}
               layout: 
                 type: FLEX
                 flex_flow: ROW
@@ -444,11 +442,12 @@ lvgl:
                           text_font: montserrat_40
                           text_align: CENTER
           # Climate
-          - button:
+          - container:
               id: heating_btn
               width: 100%
-              height: 72
+              height: ${card_height}
               bg_color: 0x1f2937  # Gray-800
+              bg_opa: cover
               border_width: 1
               border_color: 0x374151  # Gray-700
               radius: 8
@@ -465,43 +464,47 @@ lvgl:
               widgets: 
                 # Flame icon button
                 - container:
-                    width: 160
+                    flex_grow: 1
                     layout: 
                       type: FLEX
                       flex_flow: ROW
                       flex_align_main: START
                       flex_align_cross: CENTER
                       pad_column: 8
+                    on_press: # On all block icon + label to have better cliking experience
+                      then: 
+                        - homeassistant.action:
+                            action: climate.toggle
+                            data:
+                              entity_id: ${climate_entity_id}
                     widgets: 
-                      - button:
+                      - container:
                           id: heat_icon_btn
                           state:
                             checked: false
                           width: 40
                           height: 40
                           bg_color: 0x374151 # Off state
-                          shadow_width: 0
+                          bg_opa: cover
+                          shadow_width: 2
                           border_width: 0
                           radius: 8
                           pad_all: 6
+                          scrollable: false
+                          clickable: false # Propagate to parent
                           layout: 
                             type: FLEX
                             flex_align_main: CENTER
                             flex_align_cross: CENTER
                           checked: 
                             bg_color: 0xEA580C
-                          on_click:
-                            then: 
-                              - homeassistant.action:
-                                  action: climate.toggle
-                                  data:
-                                    entity_id: ${climate_entity_id}
                           widgets: 
                             - label:
                                 id: heat_icon
                                 text: "\U000F0238"  # Heater icon
                                 text_color: 0x6b7280 # Idle
-                                text_font: material_icons_24
+                                text_font: material_icons_28
+                                clickable: false # Propagate to parent
                                 state:
                                   checked: false
                                 checked: 
@@ -513,19 +516,22 @@ lvgl:
                             type: FLEX
                             flex_flow: COLUMN
                             flex_align_main: CENTER
+                          clickable: false # Propagate to parent
                           widgets:
                             - label:
                                 id: heat_label
                                 text: "Chauffage"
-                                text_color: "0xf3f4f6"  # Gray-100
+                                text_color: 0xf3f4f6  # Gray-100
                                 text_font: montserrat_16
                                 text_align: LEFT
+                                clickable: false # Propagate to parent
                             - label:
                                 id: heat_state_off
                                 text: "Eteint" 
                                 text_color: 0x6b7280  # Gray-500
                                 text_font: montserrat_12
                                 text_align: LEFT
+                                clickable: false # Propagate to parent
                             - label:
                                 id: heat_state_idle
                                 text: "Maintien"
@@ -533,6 +539,7 @@ lvgl:
                                 text_color: 0xfb923c # Orange-400
                                 text_font: montserrat_12
                                 text_align: LEFT
+                                clickable: false # Propagate to parent
                             - label:
                                 id: heat_state_heating
                                 text: "Chauffe"
@@ -540,8 +547,10 @@ lvgl:
                                 text_color: 0xf59e0b # Amber-500
                                 text_font: montserrat_12
                                 text_align: LEFT
+                                clickable: false # Propagate to parent
                 # Temperature controls
                 - container:
+                    flex_grow: 1
                     layout: 
                       type: FLEX
                       flex_flow: ROW
@@ -570,8 +579,8 @@ lvgl:
                                 text_font: material_icons_28
                           on_click: 
                             then: 
-                            - homeassistant.service:
-                                service: climate.set_temperature
+                            - homeassistant.action:
+                                action: climate.set_temperature
                                 data:
                                   entity_id: ${climate_entity_id}
                                   temperature: !lambda |-
@@ -604,8 +613,8 @@ lvgl:
                                 text_font: material_icons_28
                           on_click: 
                             then: 
-                            - homeassistant.service:
-                                service: climate.set_temperature
+                            - homeassistant.action:
+                                action: climate.set_temperature
                                 data:
                                   entity_id: ${climate_entity_id}
                                   temperature: !lambda |-
@@ -613,27 +622,19 @@ lvgl:
 
 font:
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
-    id: material_icons_20
-    bpp: 4
-    size: 20
-    glyphs: [
-      "\U000F06B5", # mdi-lightbulb
-      "\U000F0425" # mdi:power
-      
-    ]
-  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
     id: material_icons_24
     bpp: 4
     size: 24
     glyphs: [
-      "\U000F0335",
-      "\U000F0238"
+      "\U000F0425" # mdi:power
     ]
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
     id: material_icons_28
     bpp: 4
     size: 28
     glyphs: [
+      "\U000F0335", # Lightbulb icon
+      "\U000F0238", # Heater icon
       "\U000F050F", # mdi:thermometer
       "\U000F058E", # mdi:water-percent
       "\U000F1639", # mdi:minus-thick
