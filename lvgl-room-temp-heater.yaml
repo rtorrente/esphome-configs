@@ -207,15 +207,33 @@ switch:
           then:
             - lvgl.resume:
             - lvgl.widget.redraw:
+  - platform: template
+    name: Screen Always ON
+    id: screen_always_on
+    icon: mdi:home-lightbulb
+    optimistic: true
+    entity_category: "config"
+    # No turn on action to avoid on screen during bed time
+    turn_off_action:
+      - if:
+          condition:
+            lvgl.is_idle:
+              timeout: 30s
+          then:
+            - script.execute: power_off_screen
 
 ### LVGL
 
 lvgl:
   - id: main_lvgl
     on_idle:
-      timeout: 120s
+      timeout: 60s
       then: 
-        - script.execute: power_off_screen
+        - if:
+            condition:
+              switch.is_off: screen_always_on
+            then:
+              - script.execute: power_off_screen
     on_resume: 
       then: 
         - script.execute: fade_in_backlight
@@ -662,14 +680,3 @@ font:
       "\U000F1639", # mdi:minus-thick
       "\U000F11EC" # mdi:plus-thick
     ]
-
-# Touchscreen resuming
-
-touchscreen:
-  - id: main_touchscreen
-    on_touch:
-      then:
-        - if:
-            condition: lvgl.is_paused
-            then:
-              - lvgl.resume:
