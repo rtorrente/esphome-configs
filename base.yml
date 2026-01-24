@@ -53,3 +53,14 @@ sensor:
     name: Uptime
     update_interval: 600s
     entity_category: "diagnostic"
+
+text_sensor: 
+  - platform: wifi_info
+    ip_address:
+      name: Device IP Address
+    ssid:
+      name: Device Connected SSID
+    bssid:
+      name: Device Connected BSSID
+    mac_address:
+      name: Device Mac Wifi Address
