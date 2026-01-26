@@ -194,19 +194,19 @@ switch:
     turn_on_action:
       - logger.log: "Starting Antiburn"
       - if:
-          condition: lvgl.is_paused
+          condition:
+            lvgl.is_idle:
+              timeout: 30s
           then:
-            - lvgl.resume:
-            - lvgl.widget.redraw:
-      - lvgl.pause:
-          show_snow: true
+            - lvgl.pause:
+                show_snow: true
     turn_off_action:
       - logger.log: "Stopping Antiburn"
       - if:
           condition: lvgl.is_paused
           then:
-            - lvgl.resume:
-            - lvgl.widget.redraw:
+            - lvgl.pause:
+                show_snow: false
   - platform: template
     name: Screen Always ON
     id: screen_always_on
@@ -227,16 +227,26 @@ switch:
 lvgl:
   - id: main_lvgl
     on_idle:
-      timeout: 60s
-      then: 
-        - if:
-            condition:
-              switch.is_off: screen_always_on
-            then:
-              - script.execute: power_off_screen
+      - timeout: 50s
+        then: 
+          - lvgl.page.show: main_page
+      - timeout: 60s
+        then: 
+          - if:
+              condition:
+                switch.is_off: screen_always_on
+              then:
+                - script.execute: power_off_screen
     on_resume: 
       then: 
         - script.execute: fade_in_backlight
+        # Stop antiburn if it's activated
+        - if:
+            condition:
+              switch.is_on: switch_antiburn
+            then:
+              switch.turn_off: switch_antiburn
+
 
 
     style_definitions:
@@ -328,6 +338,9 @@ lvgl:
                     text_font: montserrat_48
                     text_color: 0xf3f4f6
                     text_align: CENTER
+                    on_click:
+                      then: 
+                        - lvgl.page.show: main_page
                 
                 # Date
                 - label:
@@ -347,9 +360,15 @@ lvgl:
                     x: 450
                     brightness: 100%
                     color: 0xef4444
+                    on_click:
+                      then: 
+                        - lvgl.page.show: config_page
 
     page_wrap: true
     pages:
+      ###########################
+      ####### HOME PAGE #########
+      ###########################
       - id: main_page
         # skip: true
         width: 100%
@@ -659,6 +678,19 @@ lvgl:
                                   entity_id: ${climate_entity_id}
                                   temperature: !lambda |-
                                     return std::min(id(climate_target_temp).state + 0.5, ${max_target_temperature});
+      ###########################
+      ###### CONFIG PAGE ########
+      ###########################
+      - id: config_page
+        skip: true
+        width: 100%
+        bg_color: 0x0f0f0f
+        bg_opa: cover
+        pad_top: 110
+        pad_bottom: 10
+        pad_left: 8
+        pad_right: 8
+
 
 font:
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
