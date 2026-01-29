@@ -239,6 +239,7 @@ lvgl:
                 - script.execute: power_off_screen
     on_resume: 
       then: 
+        - lvgl.widget.redraw:
         - script.execute: fade_in_backlight
         # Stop antiburn if it's activated
         - if:
@@ -408,6 +409,7 @@ lvgl:
                 - container:
                     width: 160
                     scrollable: false
+                    clickable: false # Propagate to parent
                     layout: 
                       type: FLEX
                       flex_flow: ROW
@@ -420,6 +422,7 @@ lvgl:
                           text: "\U000F0335"  # Lightbulb icon
                           text_color: "0xa1a5b0"  # Gray-600
                           text_font: material_icons_48
+                          clickable: false # Propagate to parent
                           state:
                             checked: false
                           checked:
@@ -427,6 +430,7 @@ lvgl:
                       # Text group
                       - container:
                           width: 120
+                          clickable: false # Propagate to parent
                           layout: 
                             type: FLEX
                             flex_flow: COLUMN
@@ -438,17 +442,20 @@ lvgl:
                                 text_color: "0xf3f4f6"  # Gray-100
                                 text_font: montserrat_20
                                 text_align: LEFT
+                                clickable: false # Propagate to parent
                             - label:
                                 id: light_state_off
                                 styles: light_state_x
                                 text: "Eteinte" 
                                 text_color: "0x9ca3af"  # Gray-400
+                                clickable: false # Propagate to parent
                             - label:
                                 id: light_state_on
                                 styles: light_state_x
                                 text: "Allumee"
                                 hidden: true
                                 text_color: 0xFDE047
+                                clickable: false # Propagate to parent
                 # Right side: Status indicator text
                 - label:
                     id: light_touch_for_text_off
@@ -457,6 +464,7 @@ lvgl:
                     border_color: 0x2d3748  # Gray-700
                     text: "Toucher pour allumer"  # Sans accents
                     text_color: 0x9ca3af  # Gray-400
+                    clickable: false # Propagate to parent
                 - label:
                     id: light_touch_for_text_on
                     styles: light_touch_for_x
@@ -465,6 +473,7 @@ lvgl:
                     border_color: 0xFFFFFF  # White
                     text: "Toucher pour eteindre"  # Sans accents
                     text_color: 0xB45309
+                    clickable: false # Propagate to parent
           # Grid sensor
           - container:
               id: sensors_grid
@@ -641,6 +650,7 @@ lvgl:
                                 text: "\U000F1639"
                                 text_color: 0x9ca3af  # Gray-400
                                 text_font: material_icons_48
+                                clickable: false # Propagate to parent
                           on_click: 
                             then: 
                             - homeassistant.action:
@@ -670,6 +680,7 @@ lvgl:
                                 text: "\U000F11EC"
                                 text_color: 0x9ca3af  # Gray-400
                                 text_font: material_icons_48
+                                clickable: false # Propagate to parent
                           on_click: 
                             then: 
                             - homeassistant.action:
