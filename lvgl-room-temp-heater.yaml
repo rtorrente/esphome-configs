@@ -274,12 +274,12 @@ lvgl:
         radius: 6
         pad_all: 4
       - id: light_state_x
-        text_font: montserrat_16
+        text_font: montserrat_eu_16
         text_align: LEFT
       - id: light_touch_for_x
         border_width: 1
         radius: 6
-        text_font: montserrat_16
+        text_font: montserrat_eu_16
         text_align: CENTER
         pad_right: 10
         pad_left: 10
@@ -289,10 +289,10 @@ lvgl:
       - id: temp_hum_sensor_icon
         text_font: material_icons_48
       - id: temp_hum_sensor_value
-        text_font: montserrat_40
+        text_font: montserrat_eu_40
         text_align: CENTER
       - id: heat_state_x
-        text_font: montserrat_16
+        text_font: montserrat_eu_16
         text_align: LEFT
 
 
@@ -336,7 +336,7 @@ lvgl:
                     text: "--:--"
                     align: CENTER
                     y: 0
-                    text_font: montserrat_48
+                    text_font: montserrat_eu_48
                     text_color: 0xf3f4f6
                     text_align: CENTER
                     on_click:
@@ -349,7 +349,7 @@ lvgl:
                     text: " "
                     align: CENTER
                     y: 35
-                    text_font: montserrat_16
+                    text_font: montserrat_eu_16
                     text_color: 0x6b7280
                     text_align: CENTER
 
@@ -438,21 +438,21 @@ lvgl:
                           widgets:
                             - label:
                                 id: light_label
-                                text: "Lumiere"
+                                text: "Lumière"
                                 text_color: "0xf3f4f6"  # Gray-100
-                                text_font: montserrat_20
+                                text_font: montserrat_eu_20
                                 text_align: LEFT
                                 clickable: false # Propagate to parent
                             - label:
                                 id: light_state_off
                                 styles: light_state_x
-                                text: "Eteinte" 
+                                text: "Éteinte" 
                                 text_color: "0x9ca3af"  # Gray-400
                                 clickable: false # Propagate to parent
                             - label:
                                 id: light_state_on
                                 styles: light_state_x
-                                text: "Allumee"
+                                text: "Allumée"
                                 hidden: true
                                 text_color: 0xFDE047
                                 clickable: false # Propagate to parent
@@ -471,7 +471,7 @@ lvgl:
                     hidden: true
                     bg_color: 0xFFFFFF  # White
                     border_color: 0xFFFFFF  # White
-                    text: "Toucher pour eteindre"  # Sans accents
+                    text: "Toucher pour éteindre"  # Sans accents
                     text_color: 0xB45309
                     clickable: false # Propagate to parent
           # Grid sensor
@@ -603,13 +603,13 @@ lvgl:
                                 id: heat_label
                                 text: "Chauffage"
                                 text_color: 0xf3f4f6  # Gray-100
-                                text_font: montserrat_20
+                                text_font: montserrat_eu_20
                                 text_align: LEFT
                                 clickable: false # Propagate to parent
                             - label:
                                 id: heat_state_off
                                 styles: heat_state_x
-                                text: "Eteint" 
+                                text: "Éteint" 
                                 text_color: 0x6b7280  # Gray-500
                                 clickable: false # Propagate to parent
                             - label:
@@ -664,7 +664,7 @@ lvgl:
                           id: target_temp_display
                           text: "--.-°"
                           text_color: 0xf3f4f6  # Gray-100
-                          text_font: montserrat_28
+                          text_font: montserrat_eu_28
                           text_align: CENTER
                           width: 75 # Avoid blink in temp width changes
                       - button:
@@ -704,6 +704,46 @@ lvgl:
 
 
 font:
+  - file:
+      type: gfonts
+      family: Montserrat
+    id: montserrat_eu_16
+    size: 16
+    bpp: 4
+    glyphsets:
+      - GF_Latin_Core
+  - file:
+      type: gfonts
+      family: Montserrat
+    id: montserrat_eu_20
+    size: 20
+    bpp: 4
+    glyphsets:
+      - GF_Latin_Core
+  - file:
+      type: gfonts
+      family: Montserrat
+    id: montserrat_eu_28
+    size: 28
+    bpp: 4
+    glyphsets:
+      - GF_Latin_Core
+  - file:
+      type: gfonts
+      family: Montserrat
+    id: montserrat_eu_40
+    size: 40
+    bpp: 4
+    glyphsets:
+      - GF_Latin_Core
+  - file:
+      type: gfonts
+      family: Montserrat
+    id: montserrat_eu_48
+    size: 48
+    bpp: 4
+    glyphsets:
+      - GF_Latin_Core
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/refs/heads/master/fonts/materialdesignicons-webfont.ttf"
     id: material_icons_32
     bpp: 4
