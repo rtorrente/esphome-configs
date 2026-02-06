@@ -88,6 +88,15 @@ light:
             then: 
               # Update backlight brightness
               - script.execute: fade_in_backlight
+  - id: !extend ${backlight_id}
+    on_turn_on: 
+      then: 
+        if: 
+          condition: lvgl.is_paused
+          then:
+            # Allow viewing snow for debug
+            - delay: 1s
+            - lvgl.resume:
 
 sensor:
   - platform: homeassistant
