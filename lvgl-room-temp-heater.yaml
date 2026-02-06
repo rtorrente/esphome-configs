@@ -68,6 +68,12 @@ light:
               checked: true
         - lvgl.widget.show: [light_state_on, light_touch_for_text_on]
         - lvgl.widget.hide: [light_state_off, light_touch_for_text_off]
+        - if: 
+            condition: 
+              - light.is_on: ${backlight_id}
+            then: 
+              # Update backlight brightness
+              - script.execute: fade_in_backlight
     on_turn_off: 
       then: 
         - lvgl.widget.update: 
@@ -76,6 +82,12 @@ light:
               checked: false
         - lvgl.widget.show: [light_state_off, light_touch_for_text_off]
         - lvgl.widget.hide: [light_state_on, light_touch_for_text_on]
+        - if: 
+            condition: 
+              - light.is_on: ${backlight_id}
+            then: 
+              # Update backlight brightness
+              - script.execute: fade_in_backlight
 
 sensor:
   - platform: homeassistant
@@ -157,6 +169,17 @@ text_sensor:
                 id: [heat_icon_btn, heat_icon]
                 state: 
                   checked: true
+  - platform: homeassistant
+    id: sun
+    entity_id: ${sun_entity_id}
+    on_value: 
+      then: 
+        if: 
+          condition: 
+            - light.is_on: ${backlight_id}
+          then: 
+            # Update backlight brightness
+            - script.execute: fade_in_backlight
 
 # Scripts
 
@@ -178,10 +201,18 @@ script:
                 color: 0xef4444
   - id: power_off_screen
     then: 
-      - script.execute: fade_out_backlight
-      - script.wait: fade_out_backlight
+      - light.turn_off: 
+          id: ${backlight_id}
       - lvgl.pause:
           show_snow: false
+  - id: fade_in_backlight
+    then: 
+      - light.turn_on: 
+          id: ${backlight_id}
+          brightness: !lambda |-
+            return (id(${light}).current_values.is_on() || !id(sun).has_state() || id(sun).state == "above_horizon")
+              ? ${max_backlight_brightness}
+              : ${min_backlight_brightness};
 
 
 switch:
