@@ -1,0 +1,31 @@
+external_components:
+  - source: github://rtorrente/esphome-tuya-zigbee-router
+
+uart:
+  id: uart_zigbee
+  tx_pin: GPIO20
+  rx_pin: GPIO19
+  baud_rate: 115200
+
+tuya_zigbee_router:
+  uart_id: uart_zigbee
+  id: zigbee_router_id
+
+button:
+  - platform: template
+    name: "Zigbee Reset Restart"
+    icon: "mdi:restart"
+    on_press:
+      - tuya_zigbee_router.reset:
+          id: zigbee_router_id
+  - platform: template
+    name: "Zigbee Leave Join"
+    icon: "mdi:restart"
+    on_press:
+      - tuya_zigbee_router.leave_and_rejoin:
+          id: zigbee_router_id
+
+text_sensor:
+  - platform: tuya_zigbee_router
+    zigbee_status:
+      name: "Zigbee Router Status"

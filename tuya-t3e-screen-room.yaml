@@ -1,0 +1,137 @@
+esp32:
+  variant: esp32s3
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger: 
+  hardware_uart: UART0
+
+ota:
+  - id: !extend main_ota
+    on_begin: # prevent screen flickering during OTA
+      - lvgl.pause:
+      - light.turn_off:
+          id: ${backlight_id}
+          transition_length: 0s
+      - lambda: "id(${backlight_id}).loop();"
+
+lvgl:
+  - id: !extend main_lvgl
+    displays: tft_display
+
+output:
+  - platform: gpio
+    pin:
+      number: GPIO45
+      inverted: false
+      ignore_strapping_warning: true
+    id: light_output
+  - platform: ledc
+    id: backlight_output
+    pin: GPIO42
+    frequency: 1000Hz
+    # min_power: 0.01
+    zero_means_zero: true
+
+switch:
+  - platform: gpio
+    pin:
+      number: GPIO46
+      inverted: false
+      ignore_strapping_warning: true
+    name: "Relay L2"
+    internal: true
+  - platform: gpio
+    pin:
+      number: GPIO2
+      inverted: false
+    name: "Relay L3"
+    internal: true
+
+light:
+  - platform: monochromatic
+    name: Screen Backlight
+    id: ${backlight_id}
+    output: backlight_output
+    restore_mode: ALWAYS_ON
+    default_transition_length: 1s
+    entity_category: "config"
+  - platform: binary
+    id: ${light}
+    name: ${light_name}
+    output: light_output
+
+spi:
+  - id: lcd_spi
+    clk_pin:
+      number: GPIO15
+      allow_other_uses: true
+    mosi_pin:
+      number: GPIO48
+      allow_other_uses: true
+
+i2c:
+  id: touchscreen_bus
+  sda: GPIO7
+  scl: GPIO6
+
+display:
+  - platform: st7701s
+    id: tft_display
+    dimensions:
+      width: 480
+      height: 480
+    update_interval: never
+    auto_clear_enabled: False
+    spi_mode: MODE3
+    data_rate: 2MHz
+    color_order: RGB
+    invert_colors: true
+    
+    cs_pin:
+      number: GPIO4
+      allow_other_uses: true
+    
+    # RGB Interface Pins (GS-T3E v2 pinout from openHASP)
+    data_pins:
+      red:   [GPIO8, GPIO18, GPIO17, GPIO16, GPIO0]
+      green: [GPIO13, GPIO12, GPIO11, GPIO10, GPIO9, GPIO3]
+      blue:
+          - number: GPIO15
+            allow_other_uses: true
+          - number: GPIO48
+            allow_other_uses: true
+          - GPIO47
+          - GPIO21
+          - GPIO14
+
+    # Control Pins
+    de_pin: GPIO40
+    vsync_pin: GPIO39
+    hsync_pin: GPIO38
+    pclk_pin: GPIO41
+    pclk_inverted: false
+    
+    # Timing (Specific to 480x480 Panels)
+    hsync_pulse_width: 8
+    hsync_front_porch: 10
+    hsync_back_porch: 50
+    vsync_pulse_width: 8
+    vsync_front_porch: 10
+    vsync_back_porch: 20
+    pclk_frequency: 12MHz
+    reset_pin:
+      number: GPIO4
+      allow_other_uses: true
+    init_sequence: 
+      - 1
+      
+
+touchscreen:
+  - platform: gt911
+    id: main_touchscreen
+    display: tft_display
