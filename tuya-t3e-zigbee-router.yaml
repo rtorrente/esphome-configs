@@ -1,5 +1,6 @@
 external_components:
   - source: github://rtorrente/esphome-tuya-zigbee-router
+    refresh: 10min
 
 uart:
   id: uart_zigbee
