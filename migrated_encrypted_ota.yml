@@ -1,4 +1,0 @@
-ota:
-  - id: !extend main_ota
-    password: !remove
-    encryption:

@@ -16,8 +16,8 @@ web_server:
 
 ota:
   - platform: esphome
-    password: !secret ota_password
     id: main_ota
+    encryption:
 
 wifi:
   id: main_wifi
