@@ -12,6 +12,7 @@ web_server:
     auth: 
         username: !secret basic_auth_user
         password: !secret basic_auth_password
+        type: digest
 
 ota:
   - platform: esphome
